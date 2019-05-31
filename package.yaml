@@ -1,0 +1,32 @@
+name:                lslambda
+version:             0.1.0.0
+github:              "protarget/lslambda"
+license:             AGPL3
+author:              "Pro Target"
+maintainer:          "professionaltarget@gmail.com"
+copyright:           "2019 Pro Target"
+
+extra-source-files:
+- README.md
+
+description: A compiler for an ML-like functional language and compiler targeting Linden Scripting Language
+
+dependencies:
+- base >= 4.7 && < 5
+- mtl
+- containers
+- parsec
+
+library:
+  source-dirs: src
+
+executables:
+  lslambda-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - lslambda
