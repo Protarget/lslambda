@@ -14,11 +14,17 @@ module LSLambda.Type (
     unify,
     unifyConstraints,
     constrain,
+    showType,
+    typeInteger,
+    typeFloat,
+    typeString,
+    typeVariable
     ) where
     
 import Data.Map as M
 import Data.Set as S
 import Data.Foldable as F
+import Data.List (intercalate)
     
 -- We wrap the type variable names in a wrapper so that we can distinguish between the full type ADT and type variables
 newtype TypeVariableName = TypeVariableName String deriving (Eq, Ord, Show)
@@ -122,3 +128,23 @@ unifyConstraintsRepeated s [] = Right s
 unifyConstraintsRepeated s ((TypeConstraint a b):cs) = do
     ns <- unify a b
     unifyConstraintsRepeated (ns .|> s) (ns $|> cs)
+    
+-- Display a human readable version of a type
+showType :: Type -> String
+showType (TypeConstructor n []) = n
+showType (TypeConstructor n tp) = intercalate " " (fmap showType tp)
+showType (TypeVariable (TypeVariableName n)) = n
+showType (TypeFunction ps r) = "(" ++ intercalate ", " (fmap showType ps) ++ ") -> " ++ showType r
+
+-- Some built in type constructors
+typeInteger :: Type
+typeInteger = TypeConstructor "Integer" []
+
+typeFloat :: Type
+typeFloat = TypeConstructor "Float" []
+
+typeString :: Type
+typeString = TypeConstructor "String" []
+
+typeVariable :: String -> Type
+typeVariable = TypeVariable . TypeVariableName

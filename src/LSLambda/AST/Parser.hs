@@ -1,9 +1,10 @@
-module LSLambda.AST.Parser (parseAST) where
+module LSLambda.AST.Parser (readAST, showAST) where
     
 import LSLambda.AST
 import Text.Parsec
 import qualified Text.Parsec.Token as P
 import Text.Parsec.Language (haskellDef)
+import Data.List (intercalate)
 
 astLanguageDef :: P.LanguageDef st
 astLanguageDef = P.LanguageDef {
@@ -63,7 +64,16 @@ variableParser = do
 
 valueParser = choice [try lambdaParser, try letParser, try applicationParser, stringParser, numberParser, variableParser]
 
-parseAST :: String -> SyntaxNode ()
-parseAST c = case parse valueParser "" c of
+readAST :: String -> SyntaxNode ()
+readAST c = case parse valueParser "" c of
     Left e -> error (show e)
     Right v -> v
+    
+showAST :: SyntaxNode a -> String
+showAST (LetNode n v b _) = "(let " ++ n ++ " " ++ (showAST v) ++ " " ++ (showAST b) ++ ")"
+showAST (LambdaNode p b _) = "(lambda (" ++ intercalate " " p ++ ") " ++ showAST b ++ ")"
+showAST (ApplyNode f p _) = "(" ++ showAST f ++ " " ++ intercalate " " (fmap showAST p) ++ ")"
+showAST (VariableNode n _) = n
+showAST (LiteralNode (LiteralFloat f) _) = show f
+showAST (LiteralNode (LiteralInteger i) _) = show i
+showAST (LiteralNode (LiteralString s) _) = show s
